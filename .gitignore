@@ -1,4 +1,6 @@
 __pycache__/
+.vscode/
 config.json
 .DS_Store
 stuff/
+updates.log
