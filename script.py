@@ -4,14 +4,14 @@ import logging
 import sys
 import tweepy as tp
 import simplejson as json
-from time import sleep
 from datetime import datetime
+from time import sleep
 
 # TODO:
-# - Attach Images/Videos in tweets
+# - Attach Images/Videos in tweets (?)
 # - Truncated tweets should be displayed in multiple parts (1/2), (2/2), etc.
-# - Users that are @'d should not have thier names converted
-# - Make sure Error 503 is being caught properly
+
+isRetweet = False
 
 def readConfig():
     with open('config.json') as json_data_file:
@@ -26,14 +26,20 @@ def getUserTimeline(api, username, last_id, c):
 
 def getStatusAndConvert(api, status_id):
     full_status = api.get_status(status_id, tweet_mode='extended')
+    if 'RT @' in full_status._json.get('full_text')[:4]:
+        global isRetweet
+        isRetweet = True
+        return ""
     if 'retweeted_status' in full_status._json:
         only_status_text = full_status._json.get('retweeted_status').get('full_text').split(' https://')[0]
     else:
         only_status_text = full_status._json.get('full_text').split(' https://')[0]
-    return uwu.convert(only_status_text)[0:280]
+    return uwu.convert(only_status_text)
 
 def postStatus(api, data, status_id, converted):
-    api.update_status(converted)
+    # api.update_status(converted[0:280])
+    converted = "@realDonaldTrump " + converted
+    api.update_status(converted[0:280], in_reply_to_status_id=status_id)
     data['LAST_ID'] = status_id
     jsonFile = open("config.json", "w+")
     jsonFile.write(json.dumps(data))
@@ -43,33 +49,27 @@ def startBot(data, api):
     try:
         status_recents = getUserTimeline(api, "realDonaldTrump", data.get('LAST_ID'), 20)
         for status in reversed(status_recents):
+            global isRetweet
+            isRetweet = False
             status_id = status._json.get('id')
             converted = getStatusAndConvert(api, status_id)
-            postStatus(api, data, status_id, converted)
-            logging.info(str(status_id))
-            logging.info(converted + "\n")
-    except tp.error.TweepError as e:
-        if e.reason[0]['code'] == "503":
-            print('1 Error 503 Caught')
-            logging.info('1 tweep error caught')
-    except tp.TweepError as e:
-        if e.reason[0]['code'] == "503":
-            print('2 Error 503 Caught')
-            logging.info('2 tweep error caught')
-    except tp.TweepError:
-        print('3 tweep error caught')
-        logging.info('3 tweep error caught')
+            if not isRetweet:
+                postStatus(api, data, status_id, converted)
+                logging.info(str(status_id))
+                logging.info(converted)
+    except Exception as e:
+        logging.error(e)
+        pass
 
 def main():
     print("Script is currently running")
-    logging.basicConfig(filename="updates.log", level=logging.INFO)
+    dt = datetime.now().strftime("%m-%d-%Y")
+    logging.basicConfig(filename="logs/LOG_" + dt + ".log", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
     configRes = readConfig()
     while True:
-        now = datetime.now()
-        logging.info("Retrieving latest tweets from Donald Trump at: " + now.strftime("%m/%d/%Y, %H:%M:%S"))
-        logging.info("===================================================================")
+        logging.info("Retrieving latest tweets from Donald Trump")
         startBot(configRes[0], configRes[1])
-        sleep(300)
+        sleep(60)
         print(".", end="", flush=True)
 
 if __name__ == '__main__':
