@@ -2,14 +2,18 @@ import subprocess
 from random import randint as rand
 
 convertedSentence = ""
+emoticons = [">.<", "xD", "XD", ":3", ":O", "xP", "XP", ":D", "c:", ">:[", ">:]", ">:o"]
 alphabet = list("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 
-def convert(word):
+def convertWord(word):
 	global convertedSentence, alphabet
-	convertedSentence = ""
 	converted = ""
 	doubleT = doubleT_Presence = th_Presence = False
-	if word[0] == '@': # ignore user handles
+	if '@' in word:
+		converted += word
+	elif '&amp;' in word:
+		converted += '&'
+	elif 'http://' in word or 'https://' in word:
 		converted += word
 	else:
 		for i in range(len(word)):
@@ -26,5 +30,13 @@ def convert(word):
 				th_Presence = True if i + 2 == len(word) else False
 			else:
 				converted += word[i]
-	convertedSentence += ((converted[0] + "-" + converted[0:]) if (rand(1, 6) == 1 and converted[0] in alphabet) else converted) + " "
+	convertedSentence += ((converted[0] + "-" + converted[0:]) if (rand(1, 5) == 1 and converted[0] in alphabet) else converted) + " "
 	return convertedSentence
+
+def convert(sentence):
+	global convertedSentence
+	convertedSentence = ""
+	words = sentence.split(" ")
+	for i in words:
+		convertWord(i)
+	return convertedSentence + emoticons[rand(0, len(emoticons)-1)]

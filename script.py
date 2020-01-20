@@ -39,7 +39,12 @@ def getStatusAndConvert(api, status_id):
 def postStatus(api, data, status_id, converted):
     # api.update_status(converted[0:280])
     converted = "@realDonaldTrump " + converted
-    api.update_status(converted[0:280], in_reply_to_status_id=status_id)
+    if len(converted) > 280:
+        firstStatus = api.update_status(converted[:280], in_reply_to_status_id=status_id)
+        firstStatusId = firstStatus._json.get('id')
+        api.update_status(converted[280:], in_reply_to_status_id=firstStatusId)
+    else:
+        api.update_status(converted[:280], in_reply_to_status_id=status_id)
     data['LAST_ID'] = status_id
     jsonFile = open("config.json", "w+")
     jsonFile.write(json.dumps(data))
@@ -54,7 +59,7 @@ def startBot(data, api):
             status_id = status._json.get('id')
             converted = getStatusAndConvert(api, status_id)
             if not isRetweet:
-                postStatus(api, data, status_id, converted)
+                # postStatus(api, data, status_id, converted)
                 logging.info(str(status_id))
                 logging.info(converted)
     except Exception as e:
@@ -69,7 +74,7 @@ def main():
     while True:
         logging.info("Retrieving latest tweets from Donald Trump")
         startBot(configRes[0], configRes[1])
-        sleep(60)
+        sleep(30)
         print(".", end="", flush=True)
 
 if __name__ == '__main__':
