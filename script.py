@@ -46,9 +46,9 @@ def postStatus(api, data, status_id, converted):
         newStatus = api.update_status(converted[:280], in_reply_to_status_id=status_id)
         newStatusId = newStatus._json.get('id')
         api.retweet(newStatusId)
-    updateConfigFile(status_id)
+    updateConfigFile(data, status_id)
 
-def updateConfigFile(status_id):
+def updateConfigFile(data, status_id):
     data['LAST_ID'] = status_id
     jsonFile = open("config.json", "w+")
     jsonFile.write(json.dumps(data))
@@ -74,7 +74,6 @@ def clean_tweet(tweet):
     return ' '.join(re.sub("(@[A-Za-z0-9]+)|(#[A-Za-z0-9]+)", "", tweet).split()) 
 
 def getSentimentAnalysis(tweet):
-    print(clean_tweet(tweet))
     sentiment = indicoio.sentiment_hq(clean_tweet(tweet))
     if sentiment > .6:
         return 'positive'
@@ -84,14 +83,15 @@ def getSentimentAnalysis(tweet):
         return 'neutral'
 
 def main():
-    print("Starting script")
-    dt = datetime.now().strftime("%m-%d-%Y")
-    logging.basicConfig(filename="logs/LOG_" + dt + ".log", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
+    dt = datetime.now().strftime("%m-%d")
+    logging.basicConfig(filename="logs/" + dt + ".log", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
+    logging.info("Script Started")
     configRes = readConfig()
     while True:
-        startBot(configRes[0], configRes[1], configRes[2])
-        sleep(10)
+        print(uwu.convert("45th President of the United States of America", 'neutral'))
+        # startBot(configRes[0], configRes[1], configRes[2])
         print(".", end="", flush=True)
+        sleep(10)
 
 if __name__ == '__main__':
     main()
