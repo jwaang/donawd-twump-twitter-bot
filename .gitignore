@@ -5,3 +5,4 @@ config.json
 stuff/
 updates.log
 logs/
+.env

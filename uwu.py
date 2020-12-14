@@ -38,15 +38,16 @@ def convertWord(word):
 	convertedSentence += ((converted[0] + "-" + converted[0:]) if (rand(1, 10) == 1 and converted[0] in alphabet) else converted) + " "
 	return convertedSentence
 
-def convert(sentence, sentiment):
+def convert(sentence):
 	global convertedSentence
 	convertedSentence = ""
 	words = sentence.split(" ")
 	for i in words:
 		convertWord(i)
-	if sentiment == 'positive':
-		return convertedSentence + positive_emoji[rand(0, len(positive_emoji)-1)]
-	elif sentiment == 'negative':
-		return convertedSentence + negative_emoji[rand(0, len(negative_emoji)-1)]
-	else:
-		return convertedSentence + neutral_emoji[rand(0, len(neutral_emoji)-1)]
+	return convertedSentence
+	# if sentiment == 'positive':
+	# 	return convertedSentence + positive_emoji[rand(0, len(positive_emoji)-1)]
+	# elif sentiment == 'negative':
+	# 	return convertedSentence + negative_emoji[rand(0, len(negative_emoji)-1)]
+	# else:
+	# 	return convertedSentence + neutral_emoji[rand(0, len(neutral_emoji)-1)]
