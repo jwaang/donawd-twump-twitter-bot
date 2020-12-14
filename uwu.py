@@ -48,5 +48,7 @@ def convert(sentence, sentiment):
 		return convertedSentence + positive_emoji[rand(0, len(positive_emoji)-1)]
 	elif sentiment == 'negative':
 		return convertedSentence + negative_emoji[rand(0, len(negative_emoji)-1)]
-	else:
+	elif sentiment == 'neutral':
 		return convertedSentence + neutral_emoji[rand(0, len(neutral_emoji)-1)]
+	else:
+		return
